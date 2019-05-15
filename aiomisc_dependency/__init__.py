@@ -15,16 +15,15 @@ def dependency(func):
 
 async def inject(target, dependencies):
 
-    deps_holder = namedtuple(
-        'DepsHolder', dependencies,
-        defaults=([NOT_FOUND_DEP] * len(dependencies)),
-    )
+    deps_holder = namedtuple('DepsHolder', dependencies)
 
     @wraps(deps_holder)
     async def async_deps_holder(*args):
         return deps_holder(*args)
 
-    resolved_deps = await STORE.consumer(async_deps_holder)()
+    resolved_deps = await STORE.consumer(async_deps_holder)(
+        *([NOT_FOUND_DEP] * len(dependencies))
+    )
 
     for name in dependencies:
         value = getattr(resolved_deps, name)
