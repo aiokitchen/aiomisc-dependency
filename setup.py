@@ -59,5 +59,5 @@ setup(
     entry_points={
         "aiomisc.plugins": ["dependency = aiomisc_dependency.plugin"]
     },
-    url='https://github.com/dizballanze/aiomisc-dependency',
+    url='https://github.com/aiokitchen/aiomisc-dependency',
 )

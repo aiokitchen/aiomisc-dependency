@@ -1,4 +1,4 @@
-from .import freeze, enter_session, exit_session, inject, dependency
+from . import freeze, enter_session, exit_session, inject, dependency
 
 
 async def resolve_dependencies(entrypoint, services):
