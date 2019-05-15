@@ -7,6 +7,9 @@ support pytest fixture style dependency injection.
 .. _aiodine: https://github.com/bocadilloproject/aiodine
 .. _aiomisc: https://github.com/aiokitchen/aiomisc
 
+.. contents:: Table of contents
+
+
 Installation
 ------------
 
@@ -15,6 +18,7 @@ Installing from pypi:
 .. code-block:: bash
 
     pip3 install aiomisc-dependency
+
 
 How to use
 ----------
@@ -130,3 +134,8 @@ event loop instance.
         yield pool
         pool.close()
         await pool.wait_closed()
+
+LICENSE
+-------
+
+MIT
