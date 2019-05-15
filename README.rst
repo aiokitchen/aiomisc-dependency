@@ -17,7 +17,7 @@ Installing from pypi:
 
 .. code-block:: bash
 
-    pip3 install aiomisc-dependency
+    pip3 install aiomisc aiomisc-dependency
 
 
 How to use
