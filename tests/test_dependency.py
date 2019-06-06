@@ -148,7 +148,7 @@ def test_coroutine_function_dependency():
         assert service.bar == 'Bar'
 
 
-def test_dependencies_for_depndencies():
+def test_dependencies_for_dependencies():
 
     @dependency
     async def foo():
@@ -180,3 +180,43 @@ def test_loop_dependency():
 
     with entrypoint() as loop:
         assert loop == injected_loop
+
+
+@pytest.mark.parametrize('dep,default,inited,expected', [
+    (False, None, None, RuntimeError()),
+    (True, None, None, 'spam'),
+    (True, None, 'inited', 'inited'),
+    (True, 'default', None, 'spam'),
+    (False, 'default', None, 'default'),
+    (True, 'default', 'inited', 'inited'),
+])
+def test_defaults(dep, default, inited, expected):
+
+    if dep:
+        async def spam():
+            return 'spam'
+        dependency(spam)
+
+    async def start(self):
+        pass
+
+    attrs = {
+        'start': start,
+        '__dependencies__': ('spam',),
+    }
+    if default:
+        attrs['spam'] = default
+
+    cls = type('TestService', (Service,), attrs)
+
+    if inited:
+        service = cls(spam=inited)
+    else:
+        service = cls()
+
+    if isinstance(expected, Exception):
+        with pytest.raises(RuntimeError), entrypoint(service):
+            pass
+    else:
+        with entrypoint(service):
+            assert service.spam == expected

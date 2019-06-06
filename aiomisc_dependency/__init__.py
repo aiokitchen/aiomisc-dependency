@@ -1,4 +1,5 @@
 from collections import namedtuple
+from contextlib import suppress
 from functools import wraps
 
 from aiodine.store import Store
@@ -27,9 +28,23 @@ async def inject(target, dependencies):
 
     for name in dependencies:
         value = getattr(resolved_deps, name)
-        if not hasattr(target, name):
+
+        # Check that has default class value non-overriden by init.
+        default = (
+             hasattr(target, name) and
+             hasattr(target.__class__, name) and
+             getattr(target, name) == getattr(target.__class__, name)
+        )
+
+        if not hasattr(target, name) or default:
             if value is NOT_FOUND_DEP:
-                raise RuntimeError("Required %s dependency wasn't found", name)
+                # If default class value => no injection
+                if not default:
+                    raise RuntimeError(
+                        "Required %s dependency wasn't found", name
+                    )
+                else:
+                    continue
 
             setattr(target, name, value)
 
