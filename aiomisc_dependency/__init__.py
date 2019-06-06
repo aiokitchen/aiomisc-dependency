@@ -1,5 +1,4 @@
 from collections import namedtuple
-from contextlib import suppress
 from functools import wraps
 
 from aiodine.store import Store
