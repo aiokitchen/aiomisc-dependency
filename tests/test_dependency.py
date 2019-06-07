@@ -148,7 +148,7 @@ def test_coroutine_function_dependency():
         assert service.bar == 'Bar'
 
 
-def test_dependencies_for_depndencies():
+def test_dependencies_for_dependencies():
 
     @dependency
     async def foo():
@@ -180,3 +180,72 @@ def test_loop_dependency():
 
     with entrypoint() as loop:
         assert loop == injected_loop
+
+
+def test_defaults_no_dependency():
+    class TestService(Service):
+        __dependencies__ = ('spam',)
+
+        spam: str = 'default'
+
+        async def start(self):
+            pass
+
+    service = TestService()
+
+    with entrypoint(service):
+        assert service.spam == 'default'
+
+
+@pytest.mark.parametrize('default,expected', [
+    (None, 'inited'),
+    ('default', 'inited'),
+])
+def test_defaults_with_init(default, expected):
+    @dependency
+    async def spam():
+        return 'spam'
+
+    async def start(self):
+        pass
+
+    attrs = {
+        'start': start,
+        '__dependencies__': ('spam',),
+    }
+    if default:
+        attrs['spam'] = default
+
+    cls = type('TestService', (Service,), attrs)
+
+    service = cls(spam='inited')
+
+    with entrypoint(service):
+        assert service.spam == expected
+
+
+@pytest.mark.parametrize('default,expected', [
+    (None, 'spam'),
+    ('default', 'spam'),
+])
+def test_defaults_without_init(default, expected):
+    @dependency
+    async def spam():
+        return 'spam'
+
+    async def start(self):
+        pass
+
+    attrs = {
+        'start': start,
+        '__dependencies__': ('spam',),
+    }
+    if default:
+        attrs['spam'] = default
+
+    cls = type('TestService', (Service,), attrs)
+
+    service = cls()
+
+    with entrypoint(service):
+        assert service.spam == expected
