@@ -182,20 +182,29 @@ def test_loop_dependency():
         assert loop == injected_loop
 
 
-@pytest.mark.parametrize('dep,default,inited,expected', [
-    (False, None, None, RuntimeError()),
-    (True, None, None, 'spam'),
-    (True, None, 'inited', 'inited'),
-    (True, 'default', None, 'spam'),
-    (False, 'default', None, 'default'),
-    (True, 'default', 'inited', 'inited'),
-])
-def test_defaults(dep, default, inited, expected):
+def test_defaults_no_dependency():
+    class TestService(Service):
+        __dependencies__ = ('spam',)
 
-    if dep:
-        async def spam():
-            return 'spam'
-        dependency(spam)
+        spam: str = 'default'
+
+        async def start(self):
+            pass
+
+    service = TestService()
+
+    with entrypoint(service):
+        assert service.spam == 'default'
+
+
+@pytest.mark.parametrize('default,expected', [
+    (None, 'inited'),
+    ('default', 'inited'),
+])
+def test_defaults_with_init(default, expected):
+    @dependency
+    async def spam():
+        return 'spam'
 
     async def start(self):
         pass
@@ -209,14 +218,34 @@ def test_defaults(dep, default, inited, expected):
 
     cls = type('TestService', (Service,), attrs)
 
-    if inited:
-        service = cls(spam=inited)
-    else:
-        service = cls()
+    service = cls(spam='inited')
 
-    if isinstance(expected, Exception):
-        with pytest.raises(RuntimeError), entrypoint(service):
-            pass
-    else:
-        with entrypoint(service):
-            assert service.spam == expected
+    with entrypoint(service):
+        assert service.spam == expected
+
+
+@pytest.mark.parametrize('default,expected', [
+    (None, 'spam'),
+    ('default', 'spam'),
+])
+def test_defaults_without_init(default, expected):
+    @dependency
+    async def spam():
+        return 'spam'
+
+    async def start(self):
+        pass
+
+    attrs = {
+        'start': start,
+        '__dependencies__': ('spam',),
+    }
+    if default:
+        attrs['spam'] = default
+
+    cls = type('TestService', (Service,), attrs)
+
+    service = cls()
+
+    with entrypoint(service):
+        assert service.spam == expected
