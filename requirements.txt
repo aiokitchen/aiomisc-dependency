@@ -1,1 +1,2 @@
 aiodine~=1.2.6
+aiomisc>=7.1
