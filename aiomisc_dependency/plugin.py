@@ -8,7 +8,6 @@ async def resolve_dependencies(entrypoint, services):
         return entrypoint.loop
 
     freeze()
-    await enter_session()
     for svc in services:
         if hasattr(svc, '__dependencies__'):
             await inject(svc, svc.__dependencies__)
