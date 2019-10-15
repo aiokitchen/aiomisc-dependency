@@ -249,3 +249,25 @@ def test_defaults_without_init(default, expected):
 
     with entrypoint(service):
         assert service.spam == expected
+
+
+def test_dependency_injection_reuse():
+
+    @dependency
+    async def foo(bar):
+        yield bar
+
+    @dependency
+    async def bar():
+        yield object()
+
+    class TestService(Service):
+        __dependencies__ = ('foo', 'bar')
+
+        async def start(self):
+            ...
+
+    service = TestService()
+
+    with entrypoint(service):
+        assert service.foo is service.bar
