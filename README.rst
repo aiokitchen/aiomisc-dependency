@@ -58,10 +58,9 @@ as service's attributes on entrypoint startup.
     from contextlib import suppress
 
     import aiohttp
-    from aiomisc import Service
     from aiomisc.service.aiohttp import AIOHTTPService
 
-    class HealthcheckService(Service):
+    class HealthcheckService(AIOHTTPService):
 
         __dependencies__ = ('pg_engine',)
 

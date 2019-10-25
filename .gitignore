@@ -176,3 +176,5 @@ tags
 [._]*.un~
 
 # End of https://www.gitignore.io/api/macos,vim,python
+
+aiomisc_dependency/version.py
