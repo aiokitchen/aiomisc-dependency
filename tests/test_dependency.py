@@ -26,7 +26,15 @@ async def test_register_dependency():
     await consume() == 'FooFooFoo'
 
 
-async def test_inject_dependencies():
+@pytest.mark.parametrize(
+    'dependencies_list,dependencies_map', [
+        (('foo', 'bar'), None),
+        (('foo',), {'bar': 'bar'}),
+        (None, {'foo': 'foo', 'bar': 'bar'}),
+        (None, MappingProxyType({'foo': 'foo', 'bar': 'bar'})),
+    ]
+)
+async def test_inject_dependencies(dependencies_list, dependencies_map):
 
     @dependency
     async def foo():
@@ -41,10 +49,35 @@ async def test_inject_dependencies():
 
     target = Target()
 
-    await inject(target, ('foo', 'bar'))
+    await inject(
+        target,
+        dependencies_list=dependencies_list,
+        dependencies_map=dependencies_map,
+    )
 
     assert target.foo == 'Foo'
     assert target.bar == 'Bar'
+
+
+@pytest.mark.parametrize(
+    'dependencies_list,dependencies_map', [
+        ({'foo': 'bar'}, {'foo': 'bar'}),
+        (['foo', 'bar'], ['foo', 'bar']),
+    ]
+)
+async def test_inject_dependencies_bad(dependencies_list, dependencies_map):
+
+    class Target:
+        ...
+
+    target = Target()
+
+    with pytest.raises(ValueError):
+        await inject(
+            target,
+            dependencies_list=dependencies_list,
+            dependencies_map=dependencies_map,
+        )
 
 
 def test_dependency_injection():
@@ -275,13 +308,12 @@ def test_dependency_injection_reuse():
 
 
 @pytest.mark.parametrize(
-    'dependencies', [
-        frozenset([('foo', 'bar'), 'baz']),
-        {'foo': 'bar', 'baz': 'baz'},
-        MappingProxyType({'foo': 'bar', 'baz': 'baz'}),
+    'dependencies,dependencies_map', [
+        (['baz'], {'foo': 'bar'}),
+        (None, {'foo': 'bar', 'baz': 'baz'}),
     ]
 )
-def test_dependency_inject_mapping(dependencies):
+def test_dependency_inject_mapping(dependencies, dependencies_map):
 
     @dependency
     async def foo():
@@ -293,6 +325,7 @@ def test_dependency_inject_mapping(dependencies):
 
     class TestService(Service):
         __dependencies__ = dependencies
+        __dependencies_map__ = dependencies_map
 
         bar: str
         baz: str
