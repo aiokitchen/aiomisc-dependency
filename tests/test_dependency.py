@@ -1,4 +1,5 @@
 import asyncio
+from types import MappingProxyType
 
 import pytest
 
@@ -271,3 +272,38 @@ def test_dependency_injection_reuse():
 
     with entrypoint(service):
         assert service.foo is service.bar
+
+
+@pytest.mark.parametrize(
+    'dependencies', [
+        frozenset([('foo', 'bar'), 'baz']),
+        {'foo': 'bar', 'baz': 'baz'},
+        MappingProxyType({'foo': 'bar', 'baz': 'baz'}),
+    ]
+)
+def test_dependency_inject_mapping(dependencies):
+
+    @dependency
+    async def foo():
+        yield 'foo'
+
+    @dependency
+    async def baz():
+        yield 'baz'
+
+    class TestService(Service):
+        __dependencies__ = dependencies
+
+        bar: str
+        baz: str
+
+        async def start(self):
+            ...
+
+    service = TestService()
+
+    with entrypoint(service):
+        assert not hasattr(service, 'foo')
+        assert hasattr(service, 'bar')
+        assert service.bar == 'foo'
+        assert service.baz == 'baz'
