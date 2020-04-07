@@ -1,9 +1,12 @@
+import logging
 from collections import namedtuple
 from functools import wraps
 from typing import Mapping
 
 from aiodine.store import Store
 
+
+log = logging.getLogger(__name__)
 
 STORE = Store()
 
@@ -14,18 +17,36 @@ def dependency(func):
     return STORE.provider(scope='session')(func)
 
 
-def _construct_mapping(dependencies) -> dict:
-    if isinstance(dependencies, Mapping):
-        return dict(dependencies)
+def _aggregate(*, dependencies_list, dependencies_map) -> dict:
+    dependencies = {name: name for name in dependencies_list}
 
-    return dict([
-        (dep, dep) if isinstance(dep, str) else dep
-        for dep in dependencies
-    ])
+    overlapping = set(dependencies.keys()) & set(dependencies_map.keys())
+    if overlapping:
+        log.warning(
+            '__dependencies__ and __dependencies_map__ overlap with %s',
+            overlapping
+        )
+
+    dependencies.update(dependencies_map)
+    return dependencies
 
 
-async def inject(target, dependencies):
-    dependencies = _construct_mapping(dependencies)
+async def inject(target, *, dependencies_list, dependencies_map):
+    dependencies_list = dependencies_list or []
+    dependencies_map = dependencies_map or {}
+    if (
+        isinstance(dependencies_list, Mapping) or
+        not isinstance(dependencies_map, Mapping)
+    ):
+        raise ValueError(
+            '__dependencies__ must be not be mapping, '
+            'whereas __dependencies_map__ must be'
+        )
+
+    dependencies = _aggregate(
+        dependencies_list=dependencies_list,
+        dependencies_map=dependencies_map,
+    )
 
     deps_holder = namedtuple('DepsHolder', list(dependencies.keys()))
 
