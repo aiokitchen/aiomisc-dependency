@@ -1,5 +1,6 @@
 from collections import namedtuple
 from functools import wraps
+from typing import Mapping
 
 from aiodine.store import Store
 
@@ -13,9 +14,20 @@ def dependency(func):
     return STORE.provider(scope='session')(func)
 
 
-async def inject(target, dependencies):
+def _construct_mapping(dependencies) -> dict:
+    if isinstance(dependencies, Mapping):
+        return dict(dependencies)
 
-    deps_holder = namedtuple('DepsHolder', dependencies)
+    return dict([
+        (dep, dep) if isinstance(dep, str) else dep
+        for dep in dependencies
+    ])
+
+
+async def inject(target, dependencies):
+    dependencies = _construct_mapping(dependencies)
+
+    deps_holder = namedtuple('DepsHolder', list(dependencies.keys()))
 
     @wraps(deps_holder)
     async def async_deps_holder(*args):
@@ -27,15 +39,18 @@ async def inject(target, dependencies):
 
     for name in dependencies:
         value = getattr(resolved_deps, name)
+        target_name = dependencies[name]
 
         # Check that has default class value non-overriden by init.
         default = (
-             hasattr(target, name) and
-             hasattr(target.__class__, name) and
-             getattr(target, name) == getattr(target.__class__, name)
+             hasattr(target, target_name) and
+             hasattr(target.__class__, target_name) and
+             getattr(target, target_name) == getattr(
+                target.__class__, target_name
+             )
         )
 
-        if not hasattr(target, name) or default:
+        if not hasattr(target, target_name) or default:
             if value is NOT_FOUND_DEP:
                 # If default class value => no injection
                 if not default:
@@ -45,7 +60,7 @@ async def inject(target, dependencies):
                 else:
                     continue
 
-            setattr(target, name, value)
+            setattr(target, target_name, value)
 
 
 async def enter_session():
