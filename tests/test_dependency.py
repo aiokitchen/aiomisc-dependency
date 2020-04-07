@@ -310,7 +310,10 @@ def test_dependency_injection_reuse():
 @pytest.mark.parametrize(
     'dependencies,dependencies_map', [
         (['baz'], {'foo': 'bar'}),
+        (['baz', 'foo'], {'foo': 'bar'}),
+        ([], {'foo': 'bar', 'baz': 'baz'}),
         (None, {'foo': 'bar', 'baz': 'baz'}),
+        (None, MappingProxyType({'foo': 'bar', 'baz': 'baz'})),
     ]
 )
 def test_dependency_inject_mapping(dependencies, dependencies_map):
