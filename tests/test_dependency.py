@@ -1,4 +1,5 @@
 import asyncio
+from types import MappingProxyType
 
 import pytest
 
@@ -25,7 +26,18 @@ async def test_register_dependency():
     await consume() == 'FooFooFoo'
 
 
-async def test_inject_dependencies():
+@pytest.mark.parametrize(
+    'dependencies_list,dependencies_map', [
+        (['foo', 'bar'], None),
+        (('foo', 'bar'), None),
+        ({'foo', 'bar'}, None),
+        (frozenset(['foo', 'bar']), None),
+        (('foo',), {'bar': 'bar'}),
+        (None, {'foo': 'foo', 'bar': 'bar'}),
+        (None, MappingProxyType({'foo': 'foo', 'bar': 'bar'})),
+    ]
+)
+async def test_inject_dependencies(dependencies_list, dependencies_map):
 
     @dependency
     async def foo():
@@ -40,10 +52,35 @@ async def test_inject_dependencies():
 
     target = Target()
 
-    await inject(target, ('foo', 'bar'))
+    await inject(
+        target,
+        dependencies_list=dependencies_list,
+        dependencies_map=dependencies_map,
+    )
 
     assert target.foo == 'Foo'
     assert target.bar == 'Bar'
+
+
+@pytest.mark.parametrize(
+    'dependencies_list,dependencies_map', [
+        ({'foo': 'bar'}, {'foo': 'bar'}),
+        (['foo', 'bar'], ['foo', 'bar']),
+    ]
+)
+async def test_inject_dependencies_bad(dependencies_list, dependencies_map):
+
+    class Target:
+        ...
+
+    target = Target()
+
+    with pytest.raises(ValueError):
+        await inject(
+            target,
+            dependencies_list=dependencies_list,
+            dependencies_map=dependencies_map,
+        )
 
 
 def test_dependency_injection():
@@ -271,3 +308,41 @@ def test_dependency_injection_reuse():
 
     with entrypoint(service):
         assert service.foo is service.bar
+
+
+@pytest.mark.parametrize(
+    'dependencies,dependencies_map', [
+        (['baz'], {'foo': 'bar'}),
+        (['baz', 'foo'], {'foo': 'bar'}),
+        ([], {'foo': 'bar', 'baz': 'baz'}),
+        (None, {'foo': 'bar', 'baz': 'baz'}),
+        (None, MappingProxyType({'foo': 'bar', 'baz': 'baz'})),
+    ]
+)
+def test_dependency_inject_mapping(dependencies, dependencies_map):
+
+    @dependency
+    async def foo():
+        yield 'foo'
+
+    @dependency
+    async def baz():
+        yield 'baz'
+
+    class TestService(Service):
+        __dependencies__ = dependencies
+        __dependencies_map__ = dependencies_map
+
+        bar: str
+        baz: str
+
+        async def start(self):
+            ...
+
+    service = TestService()
+
+    with entrypoint(service):
+        assert not hasattr(service, 'foo')
+        assert hasattr(service, 'bar')
+        assert service.bar == 'foo'
+        assert service.baz == 'baz'

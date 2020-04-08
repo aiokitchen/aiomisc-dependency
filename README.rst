@@ -51,11 +51,13 @@ Use dependency
 
 To use dependency you need to add it's name to ``__dependencies__`` property
 for every service which depends on it. Specified dependencies will be injected
-as service's attributes on entrypoint startup.
+as service's attributes on entrypoint startup. If needed to map the dependency
+with a different name, then, use ``__dependencies_map__``
 
 .. code-block:: python
 
     from contextlib import suppress
+    from types import MappingProxyType
 
     import aiohttp
     from aiomisc.service.aiohttp import AIOHTTPService
@@ -85,6 +87,12 @@ as service's attributes on entrypoint startup.
     class RESTService(AIOHTTPService):
 
         __dependencies__ = ('pg_engine',)
+
+        ...
+
+    class AnotherRESTService(AIOHTTPService):
+
+        __dependencies_map__ = MappingProxyType({'pg_engine': 'engine'})
 
         ...
 
