@@ -1,7 +1,7 @@
 import logging
 from collections import namedtuple
 from functools import wraps
-from typing import Mapping
+from typing import Mapping, Sequence, AbstractSet
 
 from aiodine.store import Store
 
@@ -35,12 +35,12 @@ async def inject(target, *, dependencies_list, dependencies_map):
     dependencies_list = dependencies_list or []
     dependencies_map = dependencies_map or {}
     if (
-        isinstance(dependencies_list, Mapping) or
+        not isinstance(dependencies_list, (AbstractSet, Sequence)) or
         not isinstance(dependencies_map, Mapping)
     ):
         raise ValueError(
-            '__dependencies__ must be not be mapping, '
-            'whereas __dependencies_map__ must be'
+            '__dependencies__ must be a sequence or a set, '
+            'whereas __dependencies_map__ must be a mapping'
         )
 
     dependencies = _aggregate(

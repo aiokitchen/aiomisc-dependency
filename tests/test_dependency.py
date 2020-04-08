@@ -28,7 +28,10 @@ async def test_register_dependency():
 
 @pytest.mark.parametrize(
     'dependencies_list,dependencies_map', [
+        (['foo', 'bar'], None),
         (('foo', 'bar'), None),
+        ({'foo', 'bar'}, None),
+        (frozenset(['foo', 'bar']), None),
         (('foo',), {'bar': 'bar'}),
         (None, {'foo': 'foo', 'bar': 'bar'}),
         (None, MappingProxyType({'foo': 'foo', 'bar': 'bar'})),
