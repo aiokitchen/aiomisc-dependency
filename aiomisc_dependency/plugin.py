@@ -1,7 +1,7 @@
 from . import freeze, enter_session, exit_session, inject, dependency
 
 
-async def resolve_dependencies(entrypoint, services):
+async def resolve_dependencies(entrypoint, services, **_):
 
     @dependency
     def loop():
@@ -20,7 +20,7 @@ async def resolve_dependencies(entrypoint, services):
             )
 
 
-async def clear_dependencies(entrypoint, services=None):
+async def clear_dependencies(entrypoint, **_):
     await exit_session()
 
 
