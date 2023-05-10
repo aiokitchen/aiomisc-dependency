@@ -20,7 +20,7 @@ async def resolve_dependencies(entrypoint, services):
             )
 
 
-async def clear_dependencies(entrypoint):
+async def clear_dependencies(entrypoint, services=None):
     await exit_session()
 
 
