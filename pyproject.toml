@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiomisc-dependency"
+version = "0.1.21"
+description = "aiomisc-dependency - dependency injection in aiomisc"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Yuri Shikanov", email = "dizballanze@gmail.com" }
+]
+requires-python = ">=3.9,<4.0"
+classifiers = [
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "Natural Language :: Russian",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+    "aiodine~=1.2.9",
+    "aiomisc>=17",
+]
+
+[project.optional-dependencies]
+test = [
+    "aiomisc-pytest",
+    "coverage~=4.5.3",
+    "coveralls",
+    "pylama",
+    "pytest",
+    "pytest-cov",
+    "setuptools>=65.5.1",
+    "tox",
+]
+
+[project.urls]
+homepage = "https://github.com/aiokitchen/aiomisc-dependency"
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]
+
+[project.entry-points."aiomisc.plugins"]
+dependency = "aiomisc_dependency.plugin"
+
+[tool.tox]
+requires = ["tox>=4.19"]
+envlist = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+[tool.tox.env_run_base]
+extras =  ["test"]
+passenv = [
+    "COVERALLS_*",
+    "TEST_*"
+]
+commands = [
+    [
+        "pytest", "-vv",
+        "--pylama",
+        "--cov", "aiomisc_dependency",
+        "--cov-report=term-missing",
+        "--strict",
+        "--doctest-modules",
+        "tests"
+    ],
+    ["-", "coveralls"]
+]
+
+[tool.pylama]
+ignore = ["C901", "E252"]
+skip = ["*env*", ".tox*", "*build*"]
+
+[tool.pylama.pycodestyle]
+max_line_length = 80

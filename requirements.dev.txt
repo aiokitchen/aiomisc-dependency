@@ -1,6 +1,0 @@
-coverage~=4.5.3
-coveralls
-pylava
-pytest
-pytest-cov~=2.5.1
-tox>=2.4
