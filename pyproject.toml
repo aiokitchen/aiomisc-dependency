@@ -76,9 +76,9 @@ commands = [
     ["-", "coveralls"]
 ]
 
-[tool.pylava]
+[tool.pylama]
 ignore = ["C901", "E252"]
 skip = ["*env*", ".tox*", "*build*"]
 
-[tool.pylava.pycodestyle]
+[tool.pylama.pycodestyle]
 max_line_length = 80
