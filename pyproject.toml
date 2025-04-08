@@ -41,6 +41,7 @@ test = [
     "pylama",
     "pytest",
     "pytest-cov",
+    "setuptools>=65.5.1",
     "tox",
 ]
 
