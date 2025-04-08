@@ -1,2 +1,0 @@
-aiodine~=1.2.9
-aiomisc>=7.1
