@@ -31,4 +31,4 @@ jobs:
         env:
           TOXENV: ${{ matrix.python-version }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        run: tox
+        run: poetry run tox
