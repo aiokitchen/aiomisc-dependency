@@ -42,6 +42,23 @@ uvicorn = ["asgiref (>=3.7,<4.0)", "uvicorn (>=0.27,<0.28)"]
 uvloop = ["uvloop (>=0.21,<1)"]
 
 [[package]]
+name = "aiomisc-pytest"
+version = "1.2.1"
+description = "pytest integration for aiomisc"
+optional = true
+python-versions = "<4.0,>=3.8"
+groups = ["main"]
+markers = "extra == \"test\""
+files = [
+    {file = "aiomisc_pytest-1.2.1-py3-none-any.whl", hash = "sha256:24a3802f0b794625a6bce0032f840c5e643e6f075c8a448297f1e92789c38736"},
+    {file = "aiomisc_pytest-1.2.1.tar.gz", hash = "sha256:e2658fefb4770a85fe5e1a13e816f142dc6920da5d99ea338d852c7a035f3325"},
+]
+
+[package.dependencies]
+aiomisc = ">=17"
+pytest = "8.2.0"
+
+[[package]]
 name = "cachetools"
 version = "5.5.2"
 description = "Extensible memoizing collections and decorators"
@@ -537,15 +554,15 @@ testing = ["covdefaults (>=2.3)", "pytest (>=8.3.4)", "pytest-cov (>=6)", "pytes
 
 [[package]]
 name = "pytest"
-version = "8.3.5"
+version = "8.2.0"
 description = "pytest: simple powerful testing with Python"
 optional = true
 python-versions = ">=3.8"
 groups = ["main"]
 markers = "extra == \"test\""
 files = [
-    {file = "pytest-8.3.5-py3-none-any.whl", hash = "sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820"},
-    {file = "pytest-8.3.5.tar.gz", hash = "sha256:f4efe70cc14e511565ac476b57c279e12a855b11f48f212af1080ef2263d3845"},
+    {file = "pytest-8.2.0-py3-none-any.whl", hash = "sha256:1733f0620f6cda4095bbf0d9ff8022486e91892245bb9e7d5542c018f612f233"},
+    {file = "pytest-8.2.0.tar.gz", hash = "sha256:d507d4482197eac0ba2bae2e9babf0672eb333017bcedaa5fb1a3d42c1174b3f"},
 ]
 
 [package.dependencies]
@@ -553,7 +570,7 @@ colorama = {version = "*", markers = "sys_platform == \"win32\""}
 exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11\""}
 iniconfig = "*"
 packaging = "*"
-pluggy = ">=1.5,<2"
+pluggy = ">=1.5,<2.0"
 tomli = {version = ">=1", markers = "python_version < \"3.11\""}
 
 [package.extras]
@@ -739,9 +756,9 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2,!=7.3)", "s
 test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8) ; platform_python_implementation == \"PyPy\" or platform_python_implementation == \"GraalVM\" or platform_python_implementation == \"CPython\" and sys_platform == \"win32\" and python_version >= \"3.13\"", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10) ; platform_python_implementation == \"CPython\""]
 
 [extras]
-test = ["coverage", "coveralls", "pylama", "pytest", "pytest-cov", "tox"]
+test = ["aiomisc-pytest", "coverage", "coveralls", "pylama", "pytest", "pytest-cov", "tox"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "b29dbaf14b1016da12030cadda3f9b2b91276b957d29fd649cf29715bc68d622"
+content-hash = "d61fa1294ed41f7f831da640542af5e71b559cbd5974a4746859406963695b7a"
